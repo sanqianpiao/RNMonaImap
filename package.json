@@ -2,7 +2,7 @@
 {
   "name": "react-native-mona-imap",
   "version": "1.0.0",
-  "description": "",
+  "description": "An React Native Imap Library using IMAP protocal to operate mailbox folder, such as getMessages, appendMessages, deleteMessage, createFolder etc.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,8 +10,13 @@
   "keywords": [
     "react-native"
   ],
-  "author": "",
-  "license": "",
+  "homepage": "https://github.com/sanqianpiao/RNMonaImap",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sanqianpiao/RNMonaImap.git"
+  },
+  "author": "sanqian@gmail.com",
+  "license": "ISC",
   "peerDependencies": {
     "react-native": "^0.29.0"
   }
