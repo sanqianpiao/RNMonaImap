@@ -41,6 +41,11 @@ public class RNMonaImapModule extends ReactContextBaseJavaModule {
   }
 
   @Override
+  public boolean canOverrideExistingModule() {
+    return true;
+  }
+
+  @Override
   public String getName() {
     return "RNMonaImap";
   }

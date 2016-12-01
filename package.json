@@ -8,7 +8,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "react-native"
+    "react-native",
+    "imap"
   ],
   "homepage": "https://github.com/sanqianpiao/RNMonaImap",
   "repository": {
