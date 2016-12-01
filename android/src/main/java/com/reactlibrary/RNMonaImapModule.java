@@ -51,24 +51,6 @@ public class RNMonaImapModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void mail() {
-    System.out.println("hello world");
-    MailFactory factory = MailFactory.getInstance(MailProviders.get("126.com"), "sanqian_pub@126.com", "summer13");
-    Imap imap = new Imap(factory.getSession());
-    try {
-        imap.selectFolder(this.folderName, Folder.READ_WRITE);
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-    try {
-        imap.appendMessage("subject", "a long long story ....", "sanqian_pub@126.com");
-    } catch (MessagingException e) {
-        e.printStackTrace();
-    }
-    System.out.println("mail: finish");
-  }
-
-  @ReactMethod
   public void initEmailAccount(ReadableMap args, Promise promise) {
     String brand = args.getString("brand");
     String usermail = args.getString("usermail");
