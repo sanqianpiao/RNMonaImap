@@ -5,7 +5,7 @@
 
 `$ npm install react-native-mona-imap --save`
 
-### Mostly automatic installation
+### Mostly automatic installation (Recommend)
 
 `$ react-native link react-native-mona-imap`
 
@@ -14,10 +14,7 @@
 
 #### iOS
 
-1. In XCode, in the project navigator, right click `Libraries` ➜ `Add Files to [your project's name]`
-2. Go to `node_modules` ➜ `react-native-mona-imap` and add `RNMonaImap.xcodeproj`
-3. In XCode, in the project navigator, select your project. Add `libRNMonaImap.a` to your project's `Build Phases` ➜ `Link Binary With Libraries`
-4. Run your project (`Cmd+R`)<
+Will be supported soon.
 
 #### Android
 
@@ -34,20 +31,48 @@
       compile project(':react-native-mona-imap')
   	```
 
-#### Windows
-[Read it! :D](https://github.com/ReactWindows/react-native)
-
-1. In Visual Studio add the `RNMonaImap.sln` in `node_modules/react-native-mona-imap/windows/RNMonaImap.sln` folder to their solution, reference from their app.
-2. Open up your `MainPage.cs` app
-  - Add `using Cl.Json.RNMonaImap;` to the usings at the top of the file
-  - Add `new RNMonaImapPackage()` to the `List<IReactPackage>` returned by the `Packages` method
-
 
 ## Usage
-```javascript
-import RNMonaImap from 'react-native-mona-imap';
+##### ES6 grammer, Generator and async function are used in this demo
 
-// TODO: What do with the module?
-RNMonaImap;
+```javascript
+import RNMonaImap from 'react-native-mona-imap'
+
+//You should call RNMonaImap.initEmailAccount first before take other operation
+const function * initEmailAccount() {
+  //init imap connection and create a folder
+  //at present, brand of mail provider "126.com", "163.com", "gmail.com" are supported, I'll add more soon.
+
+  const init = yield RNMonaImap.initEmailAccount({brand: '126.com', usermail: 'youremail@126.com', password: 'youpassword', folderName: 'imapFolderName'})
+
+  if(init === true) {
+    //means init imap connection successfully
+  } else {
+    //error message
+    console.info(init)
+  }
+
+}
+
+const function * getMessages() {
+  //get all messages in folder that named "imapFolderName" above
+  //you can use `console.info(messages)`
+  const messages = yield RNMonaImap.getMessages()
+
+  return messages
+}
+
+const async function sendMessage() {
+  const message = {
+    subject: 'a subject',
+    content: 'a plain text content encoded in utf8',
+    messageId: '' // sometimes, you want to update a message, then take the old message's messageId, or let it be an empty string
+  }
+  const resp = await RNMonaImap.sendMessage(message)
+  resp === true ? 'Successfully Saved' : 'Save Failed'
+}
+
+const * deleteMessage(messageId) {
+  const resp = yield RNMonaImap.deleteMessage(messageId)
+}
 ```
-  
