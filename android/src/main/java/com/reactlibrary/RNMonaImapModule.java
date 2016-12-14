@@ -51,92 +51,114 @@ public class RNMonaImapModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void initEmailAccount(ReadableMap args, Promise promise) {
-    String brand = args.getString("brand");
-    String usermail = args.getString("usermail");
-    String password = args.getString("password");
-    String folderName = args.getString("folderName");
+  public void initEmailAccount(ReadableMap args, final Promise promise) {
+    final String _brand = args.getString("brand");
+    final String _usermail = args.getString("usermail");
+    final String _password = args.getString("password");
+    final String _folderName = args.getString("folderName");
 
-    try {
-      MailFactory factory = MailFactory.getInstance(MailProviders.get(brand), usermail, password);
-      Imap imap = new Imap(factory.getSession());
-      imap.createFolder(folderName);
-      imap.selectFolder(folderName, Folder.READ_WRITE);
+    new Thread(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          MailFactory factory = MailFactory.getInstance(MailProviders.get(_brand), _usermail, _password);
+          Imap imap = new Imap(factory.getSession());
+          imap.createFolder(_folderName);
+          imap.selectFolder(_folderName, Folder.READ_WRITE);
 
-      this.brand = brand;
-      this.usermail = usermail;
-      this.password = password;
-      this.folderName = folderName;
+          brand = _brand;
+          usermail = _usermail;
+          password = _password;
+          folderName = _folderName;
 
-      promise.resolve(true);
-    } catch (Exception e) {
-      e.printStackTrace();
-      promise.reject("INIT_EMAIL_ACCOUNT_FAIL", e);
-    }
-  }
-
-  @ReactMethod
-  public void getMessages(Promise promise) {
-    try {
-      MailFactory mailFactory = getMailFactory();
-      Imap imap = new Imap(mailFactory.getSession());
-      imap.selectFolder(folderName, Folder.READ_ONLY);
-      Message[] messages = imap.getSelectedFolder().getMessages();
-
-      WritableArray res = Arguments.createArray();
-      for(Message message : messages) {
-        MimeMessage m = (MimeMessage)message;
-
-        WritableMap map = Arguments.createMap();
-        map.putString("messageId", m.getMessageID());
-        map.putString("subject", m.getSubject());
-        map.putString("content", m.getContent().toString());
-
-        res.pushMap(map);
+          promise.resolve(true);
+        } catch (Exception e) {
+          e.printStackTrace();
+          promise.reject("INIT_EMAIL_ACCOUNT_FAIL", e);
+        }
       }
-      promise.resolve(res);
-    } catch (MessagingException e) {
-      e.printStackTrace();
-      promise.reject("GET_MESSAGES_FAIL", e);
-    } catch (IOException e) {
-      e.printStackTrace();
-      promise.reject("GET_MESSAGES_FAIL", e);
-    }
+    }).start();
   }
 
   @ReactMethod
-  public void sendMessage(ReadableMap args, Promise promise) {
-    try {
-      MailFactory mailFactory = getMailFactory();
-      Imap imap = new Imap(mailFactory.getSession());
-      imap.selectFolder(this.folderName, Folder.READ_WRITE);
+  public void getMessages(final Promise promise) {
+    new Thread(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          MailFactory mailFactory = getMailFactory();
+          Imap imap = new Imap(mailFactory.getSession());
+          imap.selectFolder(folderName, Folder.READ_ONLY);
+          Message[] messages = imap.getSelectedFolder().getMessages();
 
-      String subject = args.getString("subject");
-      String content = args.getString("content");
-      String messageId = args.getString("messageId");
-      imap.appendMessage(subject, content, usermail);
+          WritableArray res = Arguments.createArray();
+          for(Message message : messages) {
+            MimeMessage m = (MimeMessage)message;
 
-      deleteMessageById(imap, messageId);
-      promise.resolve(true);
-    } catch (MessagingException e) {
-      e.printStackTrace();
-      promise.reject("SEND_MESSAGE_FAIL", e);
-    }
+            WritableMap map = Arguments.createMap();
+            map.putString("messageId", m.getMessageID());
+            map.putString("subject", m.getSubject());
+            map.putString("content", m.getContent().toString());
+
+            res.pushMap(map);
+          }
+          promise.resolve(res);
+        } catch (MessagingException e) {
+          e.printStackTrace();
+          promise.reject("GET_MESSAGES_FAIL", e);
+        } catch (IOException e) {
+          e.printStackTrace();
+          promise.reject("GET_MESSAGES_FAIL", e);
+        }
+      }
+    }).start();
+
   }
 
   @ReactMethod
-  public void deleteMessage(String messageId, Promise promise) {
-    MailFactory mailFactory = getMailFactory();
-    Imap imap = new Imap(mailFactory.getSession());
-    try {
-      imap.selectFolder(this.folderName, Folder.READ_WRITE);
+  public void sendMessage(final ReadableMap args, final Promise promise) {
+    new Thread(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          MailFactory mailFactory = getMailFactory();
+          Imap imap = new Imap(mailFactory.getSession());
+          imap.selectFolder(folderName, Folder.READ_WRITE);
 
-      deleteMessageById(imap, messageId);
-      promise.resolve(true);
-    } catch (MessagingException e) {
-      e.printStackTrace();
-      promise.reject("DELETE_MESSAGE_FAIL", e);
-    }
+          String subject = args.getString("subject");
+          String content = args.getString("content");
+          String messageId = args.getString("messageId");
+          imap.appendMessage(subject, content, usermail);
+
+          deleteMessageById(imap, messageId);
+          promise.resolve(true);
+        } catch (MessagingException e) {
+          e.printStackTrace();
+          promise.reject("SEND_MESSAGE_FAIL", e);
+        }
+      }
+    }).start();
+  }
+
+  @ReactMethod
+  public void deleteMessage(final String messageId, final Promise promise) {
+    new Thread(new Runnable() {
+      @Override
+      public void run() {
+        MailFactory mailFactory = getMailFactory();
+        Imap imap = new Imap(mailFactory.getSession());
+        try {
+          imap.selectFolder(folderName, Folder.READ_WRITE);
+
+          deleteMessageById(imap, messageId);
+          promise.resolve(true);
+        } catch (MessagingException e) {
+          e.printStackTrace();
+          promise.reject("DELETE_MESSAGE_FAIL", e);
+        }
+      }
+    }).start();
+
   }
 
   private void deleteMessageById(Imap imap, String messageId) throws MessagingException {
